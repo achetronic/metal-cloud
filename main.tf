@@ -1,3 +1,5 @@
+# WARNING: Unable the SELinux for qemu
+# Ref: https://github.com/dmacvicar/terraform-provider-libvirt/issues/546
 terraform {
   required_providers {
     libvirt = {
@@ -12,7 +14,7 @@ provider "libvirt" {
 }
 
 
-# FULLY WORKING BRIDGE
+# Create a virtual-bridge to connect to the real bridge interface
 resource "libvirt_network" "default" {
   name = "default"
   mode = "bridge"
@@ -32,32 +34,36 @@ resource "libvirt_network" "default" {
 
 
 #
-/*resource "libvirt_pool" "default2" {
-  name = "default2"
+resource "libvirt_pool" "kube_pool" {
+  name = "kube_pool"
   type = "dir"
-  path = "/home/slimbook/cloud_pool"
-}*/
+  path = "/home/slimbook/kube_pool"
+}
 
 # We fetch the latest ubuntu release image from their mirrors
-/*resource "libvirt_volume" "ubuntu" {
-  name   = "ubuntu"
-  pool   = libvirt_pool.default2.name
+resource "libvirt_volume" "os_image" {
+  name   = "ubuntu-hirsute.qcow2"
   source = "https://cloud-images.ubuntu.com/releases/hirsute/release/ubuntu-21.04-server-cloudimg-amd64.img"
-  format = "qcow2"
-}*/
+  pool   = libvirt_pool.kube_pool.name
+}
+
+resource "libvirt_volume" "kube_disk" {
+  name = "kube-disk.qcow2"
+  base_volume_id = libvirt_volume.os_image.id
+  pool = libvirt_pool.kube_pool.name
+
+  # 10GB as bytes
+  size = 10000000000
+}
 
 # Create the machine
-resource "libvirt_domain" "domain-ubuntu" {
-  name   = "ubuntu-terraform"
-  memory = "512"
+resource "libvirt_domain" "kube_vm" {
+  name   = "kube-vm-0"
+  memory = "2048"
   vcpu   = 1
 
-  //kernel = "https://cloud-images.ubuntu.com/minimal/daily/hirsute/current/hirsute-minimal-cloudimg-amd64.img"
-
-  //cloudinit = libvirt_cloudinit_disk.commoninit.id
-
   network_interface {
-    network_name = "default"
+    network_name = libvirt_network.default.name
   }
 
   # IMPORTANT: this is a known bug on cloud images, since they expect a console
@@ -75,19 +81,15 @@ resource "libvirt_domain" "domain-ubuntu" {
     target_port = "1"
   }
 
-  /*disk {
-    volume_id = libvirt_volume.ubuntu.id
-  }*/
-
   disk {
-    #file = "/var/lib/libvirt/images/dsfsdf.qcow2"
-    url = "https://cloud-images.ubuntu.com/minimal/daily/hirsute/current/hirsute-minimal-cloudimg-amd64.img"
+    volume_id = libvirt_volume.kube_disk.id
   }
 
-  /*graphics {
-    type        = "spice"
+  graphics {
+    type        = "vnc"
     listen_type = "address"
     autoport    = true
-  }*/
+  }
 }
+
 
