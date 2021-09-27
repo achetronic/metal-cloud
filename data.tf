@@ -3,19 +3,15 @@ locals {
 
     # Define the masters
     kube-master-0 = {
-      memory = 1024,
+      memory = 1024
       vcpu = 1
-    },
+    }
 
     # Define the workers
     kube-worker-0 = {
-      memory = 2048,
+      memory = 2048
       vcpu = 1
-    },
+    }
 
   }
-}
-
-output "instances" {
-  value = local.instances
 }

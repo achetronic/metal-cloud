@@ -9,7 +9,7 @@ resource "libvirt_domain" "kube_vm" {
   cloudinit = libvirt_cloudinit_disk.commoninit.id
 
   network_interface {
-    network_name = libvirt_network.default.name
+    network_id = libvirt_network.default.id
   }
 
   # IMPORTANT: this is a known bug on cloud images, since they expect a console
@@ -36,4 +36,13 @@ resource "libvirt_domain" "kube_vm" {
     listen_type = "address"
     autoport    = true
   }
+}
+
+output "instances" {
+  value = toset([
+    for vm in libvirt_domain.kube_vm : {
+      name: vm.name
+      mac: vm.network_interface[0].mac
+    }
+  ])
 }

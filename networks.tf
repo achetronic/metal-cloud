@@ -8,9 +8,9 @@ resource "libvirt_network" "default" {
 
   dns {
     enabled = true
-    local_only = true
+    local_only = false
     hosts {
-       hostname = "gateway-1"
+       hostname = "gateway"
        ip = "192.168.0.1"
     }
   }
