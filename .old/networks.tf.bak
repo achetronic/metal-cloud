@@ -1,0 +1,37 @@
+# FULLY WORKING NAT
+resource "libvirt_network" "default" {
+  name = "default"
+  mode = "nat"
+  domain    = "k8s.local"
+  addresses = ["10.17.3.0/24"]
+  dns {
+    enabled = true
+    local_only = true
+    hosts {
+       hostname = "gateway"
+       ip = "10.17.3.1"
+    }
+  }
+  dhcp { enabled = true }
+}
+
+# FULLY WORKING BRIDGE
+resource "libvirt_network" "default" {
+  name = "default"
+  mode = "bridge"
+  bridge = "bridge0"
+  dns {
+    enabled = true
+    local_only = true
+    hosts {
+       hostname = "gateway"
+       ip = "192.168.0.1"
+    }
+  }
+  dhcp { enabled = true }
+}
+
+
+output "default_network" {
+  value = libvirt_network.default
+}
