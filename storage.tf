@@ -17,11 +17,15 @@ resource "libvirt_volume" "os_image" {
 # Use CloudInit to add our ssh-key to the instance
 # you can add also meta_data field
 data "template_file" "user_data" {
-  template = file("${path.module}/cloud_init.cfg")
+  template = file("${path.module}/cloud-init/cloud_init.cfg")
+}
+data "template_file" "network_config" {
+  template = file("${path.module}/cloud-init/network_config.cfg")
 }
 resource "libvirt_cloudinit_disk" "commoninit" {
   name           = "commoninit.iso"
   user_data      = data.template_file.user_data.rendered
+  network_config = data.template_file.network_config.rendered
   pool           = libvirt_pool.kube_pool.name
 }
 

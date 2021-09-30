@@ -13,5 +13,16 @@ locals {
       vcpu = 1
     }
 
+    kube-worker-1 = {
+      memory = 512
+      vcpu = 1
+    }
+
+    kube-worker-2 = {
+      memory = 512
+      vcpu = 1
+    }
+
+
   }
 }

@@ -15,3 +15,17 @@ resource "libvirt_network" "default" {
     }
   }
 }
+
+
+#resource "null_resource" "instance_detection" {
+#  triggers = {
+#    instance_ids = join(",", [
+#      for i, v in local.instances :
+#        libvirt_domain.kube_vm[i].id
+#    ])
+#  }
+#
+#  provisioner "local-exec" {
+#    command = "sudo nmap -n -sP 192.168.0.1/24 | awk '/Nmap scan report/{printf $5;printf \" \";getline;getline;print $3;}' >> test.txt"
+#  }
+#}
