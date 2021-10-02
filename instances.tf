@@ -1,25 +1,20 @@
 # Create the machine
 resource "libvirt_domain" "kube_vm" {
-
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to tags, e.g. because a management agent
-      # updates these based on some ruleset managed elsewhere.
-      network_interface["bridge"],
-    ]
-  }
-
-
   for_each = local.instances
+
+  depends_on = [libvirt_network.kube_network]
 
   name   = each.key
   memory = each.value.memory
   vcpu   = each.value.vcpu
 
-  cloudinit = libvirt_cloudinit_disk.commoninit.id
+  cloudinit = libvirt_cloudinit_disk.cloud_init[each.key].id
 
   network_interface {
-    network_id = libvirt_network.default.id
+    network_id = libvirt_network.kube_network.id
+    hostname = each.key
+    addresses = [each.value.address]
+    wait_for_lease = true
   }
 
   # IMPORTANT: this is a known bug on cloud images, since they expect a console
@@ -46,37 +41,22 @@ resource "libvirt_domain" "kube_vm" {
     listen_type = "address"
     autoport    = true
   }
+
+  qemu_agent = false
+  autostart = true
 }
 
 # Export a json file with current known data about the instances
-locals {
-  instances_data = toset([
-    for vm in libvirt_domain.kube_vm : {
-      name: vm.name
-      mac: vm.network_interface[0].mac
-    }
-  ])
-}
-resource "local_file" "instances_data" {
-  content  = jsonencode(local.instances_data)
-  filename = "${path.module}/instances_data.json"
-}
+#locals {
+#  instances_data = toset([
+#    for vm in libvirt_domain.kube_vm : {
+#      name: vm.name
+#      mac: vm.network_interface[0].mac
+#    }
+#  ])
+#}
+#resource "local_file" "instances_data" {
+#  content  = jsonencode(local.instances_data)
+#  filename = "${path.module}/instances_data.json"
+#}
 
-# Executes a script to detect instances over the network
-# and fills the public IPs matching MAC addresses
-resource "null_resource" "instance_data_completion" {
-  triggers = {
-    instance_ids = join(",", [
-      for i, _ in local.instances :
-        libvirt_domain.kube_vm[i].id
-    ])
-  }
-
-  depends_on = [
-    local_file.instances_data
-  ]
-
-  provisioner "local-exec" {
-    command = "bash ${path.module}/scripts/find-instances.sh"
-  }
-}

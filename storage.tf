@@ -12,24 +12,43 @@ resource "libvirt_volume" "os_image" {
   pool   = libvirt_pool.kube_pool.name
 }
 
-# for more info about paramater check this out
+# CloudInit volume to perform changes at runtime: add our ssh-key to the instance and more
 # https://github.com/dmacvicar/terraform-provider-libvirt/blob/master/website/docs/r/cloudinit.html.markdown
-# Use CloudInit to add our ssh-key to the instance
-# you can add also meta_data field
+resource "random_password" "instance_password" {
+  for_each = local.instances
+
+  length           = 16
+  special          = false
+  override_special = "_%@"
+}
 data "template_file" "user_data" {
-  template = file("${path.module}/cloud-init/cloud_init.cfg")
+
+  depends_on = [
+    random_password.instance_password
+  ]
+
+  for_each = local.instances
+
+  template = file("${path.module}/cloud-init/user_data.cfg")
+  vars = {
+    hostname = each.key
+    user = "ubuntu"
+    password = random_password.instance_password[each.key].result
+  }
 }
 data "template_file" "network_config" {
   template = file("${path.module}/cloud-init/network_config.cfg")
 }
-resource "libvirt_cloudinit_disk" "commoninit" {
-  name           = "commoninit.iso"
-  user_data      = data.template_file.user_data.rendered
+resource "libvirt_cloudinit_disk" "cloud_init" {
+  for_each = local.instances
+
+  name           = join("", ["cloud-init-", each.key, ".iso"])
+  user_data      = data.template_file.user_data[each.key].rendered
   network_config = data.template_file.network_config.rendered
   pool           = libvirt_pool.kube_pool.name
 }
 
-
+# General purpose volume
 resource "libvirt_volume" "kube_disk" {
   for_each = local.instances
 

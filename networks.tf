@@ -1,31 +1,16 @@
-# Create a virtual-bridge to connect to the real bridge interface
-resource "libvirt_network" "default" {
-  name = "default"
-  mode = "bridge"
-  bridge = "bridge0"
+# Create a NAT private network
+# Ref: https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/domain#handling-network-interfaces
+resource "libvirt_network" "kube_network" {
+  name = "kubenet"
+  mode = "nat"
+  domain = "k8s.local"
+
+  addresses = ["10.17.3.0/24"]
 
   dhcp { enabled = true }
 
   dns {
     enabled = true
     local_only = false
-    hosts {
-       hostname = "gateway"
-       ip = "192.168.0.1"
-    }
   }
 }
-
-
-#resource "null_resource" "instance_detection" {
-#  triggers = {
-#    instance_ids = join(",", [
-#      for i, v in local.instances :
-#        libvirt_domain.kube_vm[i].id
-#    ])
-#  }
-#
-#  provisioner "local-exec" {
-#    command = "sudo nmap -n -sP 192.168.0.1/24 | awk '/Nmap scan report/{printf $5;printf \" \";getline;getline;print $3;}' >> test.txt"
-#  }
-#}
