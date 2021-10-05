@@ -45,18 +45,3 @@ resource "libvirt_domain" "kube_vm" {
   qemu_agent = false
   autostart = true
 }
-
-# Export a json file with current known data about the instances
-#locals {
-#  instances_data = toset([
-#    for vm in libvirt_domain.kube_vm : {
-#      name: vm.name
-#      mac: vm.network_interface[0].mac
-#    }
-#  ])
-#}
-#resource "local_file" "instances_data" {
-#  content  = jsonencode(local.instances_data)
-#  filename = "${path.module}/instances_data.json"
-#}
-
