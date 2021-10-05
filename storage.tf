@@ -14,36 +14,41 @@ resource "libvirt_volume" "os_image" {
 
 # CloudInit volume to perform changes at runtime: add our ssh-key to the instance and more
 # https://github.com/dmacvicar/terraform-provider-libvirt/blob/master/website/docs/r/cloudinit.html.markdown
-resource "random_password" "instance_password" {
+resource "random_string" "instance_password" {
   for_each = local.instances
 
   length           = 16
   special          = false
   override_special = "_%@"
 }
-data "template_file" "user_data" {
-
-  depends_on = [
-    random_password.instance_password
+locals {
+  # List of SSH keys allowed on instances
+  instances_ssh_keys = [
+    for i, v in fileset(path.module, "ssh-keys/*.pub") :
+      trimspace(file("${path.module}/${v}"))
   ]
 
-  for_each = local.instances
-
-  template = file("${path.module}/cloud-init/user_data.cfg")
-  vars = {
-    hostname = each.key
-    user = "ubuntu"
-    password = random_password.instance_password[each.key].result
+  # Parsed user-data config file for Cloud Init
+  user_data = {
+    for i, _ in local.instances :
+      i => templatefile("${path.module}/cloud-init/user_data.cfg", {
+        hostname = i
+        user     = "ubuntu"
+        password = random_string.instance_password[i].result
+        ssh-keys = local.instances_ssh_keys
+      })
   }
 }
+# Parsed network config file for Cloud Init
 data "template_file" "network_config" {
   template = file("${path.module}/cloud-init/network_config.cfg")
 }
+# Volume for bootstrapping instances using Cloud Init
 resource "libvirt_cloudinit_disk" "cloud_init" {
   for_each = local.instances
 
   name           = join("", ["cloud-init-", each.key, ".iso"])
-  user_data      = data.template_file.user_data[each.key].rendered
+  user_data      = local.user_data[each.key]
   network_config = data.template_file.network_config.rendered
   pool           = libvirt_pool.kube_pool.name
 }

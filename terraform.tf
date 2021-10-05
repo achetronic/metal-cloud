@@ -10,5 +10,5 @@ terraform {
 
 # Configure the Libvirt provider
 provider "libvirt" {
-  uri = "qemu+ssh://slimbook@192.168.0.119/system"
+  uri = "qemu+ssh://${var.bastion_connection.user}@${var.bastion_connection.address}/system"
 }

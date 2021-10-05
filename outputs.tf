@@ -1,12 +1,15 @@
 # Map of instances' complete information
-output "instances" {
-  sensitive = true
-  value = {
+locals {
+  instances_output = {
     for i, v in local.instances:
       i => merge(v, {
-        user = data.template_file.user_data[i].vars.user
-        password = data.template_file.user_data[i].vars.password
-        hostname = data.template_file.user_data[i].vars.hostname
+        hostname = i
+        user = "ubuntu"
+        password = random_string.instance_password[i].result
+        ssh-keys = local.instances_ssh_keys
       })
   }
+}
+output "instances" {
+  value = local.instances_output
 }
