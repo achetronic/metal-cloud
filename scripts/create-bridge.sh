@@ -13,14 +13,16 @@ export INTERFACE_NAME="eno1"
 # GET PHYSICAL INTERFACES
 #basename -a $(ls /sys/class/net/en* -d)
 
+# CREATE A VLAN POINTING TO THE PHYSICAL INTERFACE
+# ---
 
-# CREATE THE BRIDGE
+# CREATE A BRIDGE
 nmcli connection add type bridge ifname "${BRIDGE_NAME}" con-name "${BRIDGE_NAME}"
 nmcli connection modify "${BRIDGE_NAME}" ipv4.method manual ipv4.address "${BRIDGE_IPV4_CIDR}"
 nmcli connection up "${BRIDGE_NAME}"
 
 
-# ATTACH EXTERNAL INTERFACE TO THE BRIDGE
+# ATTACH VLAN TO THE BRIDGE
 nmcli connection modify "${INTERFACE_NAME}" master "${BRIDGE_NAME}"
 
 # WARNING: Network Manager is not able to manage physical interfaces to change the master

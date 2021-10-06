@@ -31,17 +31,22 @@ locals {
   # Parsed user-data config file for Cloud Init
   user_data = {
     for i, _ in local.instances :
-      i => templatefile("${path.module}/cloud-init/user_data.cfg", {
+      i => templatefile("${path.module}/templates/cloud-init/user_data.cfg", {
         hostname = i
         user     = "ubuntu"
         password = random_string.instance_password[i].result
         ssh-keys = local.instances_ssh_keys
       })
   }
-}
-# Parsed network config file for Cloud Init
-data "template_file" "network_config" {
-  template = file("${path.module}/cloud-init/network_config.cfg")
+
+  # Parsed network config file for Cloud Init
+  network_config = {
+    for i, v in local.instances :
+      i => templatefile("${path.module}/templates/cloud-init/network_config.cfg", {
+        addresses = join(", ", v.addresses)
+        gateway4 = v.gateway4
+      })
+  }
 }
 # Volume for bootstrapping instances using Cloud Init
 resource "libvirt_cloudinit_disk" "cloud_init" {
@@ -49,7 +54,7 @@ resource "libvirt_cloudinit_disk" "cloud_init" {
 
   name           = join("", ["cloud-init-", each.key, ".iso"])
   user_data      = local.user_data[each.key]
-  network_config = data.template_file.network_config.rendered
+  network_config = local.network_config[each.key]
   pool           = libvirt_pool.kube_pool.name
 }
 

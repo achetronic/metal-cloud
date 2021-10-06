@@ -4,7 +4,7 @@ locals {
     for i, v in local.instances_output : {
       role = length(regexall("(\\bmaster\\b)+", i)) != 0 ? "controller" : "worker"
       ssh = {
-        address = v.address
+        address = split("/", v.addresses[0])[0]
         user = v.user
         port = 22
         keyPath = pathexpand("./ssh-keys/id_ed25519")

@@ -2,7 +2,9 @@
 resource "libvirt_domain" "kube_vm" {
   for_each = local.instances
 
-  depends_on = [libvirt_network.kube_network]
+  depends_on = [
+    #libvirt_network.kube_nat
+  ]
 
   name   = each.key
   memory = each.value.memory
@@ -10,11 +12,18 @@ resource "libvirt_domain" "kube_vm" {
 
   cloudinit = libvirt_cloudinit_disk.cloud_init[each.key].id
 
+  # Uncomment this to use a NAT
+  #network_interface {
+  #  network_id = libvirt_network.kube_nat.id
+  #  hostname = each.key
+  #  addresses = [each.value.address]
+  #  wait_for_lease = true
+  #}
+
+  # Uncomment this to use host VLAN interfaces
+  # DISCLAIMER: You need to create one per VM
   network_interface {
-    network_id = libvirt_network.kube_network.id
-    hostname = each.key
-    addresses = [each.value.address]
-    wait_for_lease = true
+    macvtap = "eno1"
   }
 
   # IMPORTANT: this is a known bug on cloud images, since they expect a console
@@ -42,6 +51,6 @@ resource "libvirt_domain" "kube_vm" {
     autoport    = true
   }
 
-  qemu_agent = false
+  qemu_agent = true
   autostart = true
 }
