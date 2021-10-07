@@ -1,9 +1,10 @@
+# [join(",", [for _, v in local.instances[each.key].addresses: split("/", v)[0]] )]
 # Create the machine
 resource "libvirt_domain" "kube_vm" {
   for_each = local.instances
 
   depends_on = [
-    #libvirt_network.kube_nat
+    libvirt_network.kube_nat
   ]
 
   name   = each.key
@@ -12,18 +13,22 @@ resource "libvirt_domain" "kube_vm" {
 
   cloudinit = libvirt_cloudinit_disk.cloud_init[each.key].id
 
-  # Uncomment this to use a NAT
-  #network_interface {
-  #  network_id = libvirt_network.kube_nat.id
-  #  hostname = each.key
-  #  addresses = [each.value.address]
-  #  wait_for_lease = true
-  #}
+  dynamic "network_interface" {
+    for_each = lower(local.networks.mode) == "nat" ? [1] : []
+    content {
+      network_id = libvirt_network.kube_nat[0].id
+      hostname = each.key
+      addresses = [for i, v in each.value.addresses: split("/", v)[0]]
+      #wait_for_lease = true
+    }
+  }
 
-  # Uncomment this to use host VLAN interfaces
-  # DISCLAIMER: You need to create one per VM
-  network_interface {
-    macvtap = "eno1"
+  dynamic "network_interface" {
+    for_each = lower(local.networks.mode) == "macvtap" ? [1] : []
+    content {
+      macvtap = local.networks.macvtap.interface
+      hostname = each.key
+    }
   }
 
   # IMPORTANT: this is a known bug on cloud images, since they expect a console

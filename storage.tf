@@ -43,8 +43,8 @@ locals {
   network_config = {
     for i, v in local.instances :
       i => templatefile("${path.module}/templates/cloud-init/network_config.cfg", {
-        addresses = join(", ", v.addresses)
-        gateway4 = v.gateway4
+        addresses = v.addresses
+        gateway_ipv4 =  lookup(local.networks, local.networks.mode, {}).gateway_ipv4
       })
   }
 }
