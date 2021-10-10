@@ -1,10 +1,44 @@
-# [join(",", [for _, v in local.instances[each.key].addresses: split("/", v)[0]] )]
-# Create the machine
-resource "libvirt_domain" "kube_vm" {
+locals {
+
+  # Merge network fields for each instance network
+  # This makes a trustable list by looking for each defined network in the networks definition
+  instance_networks_expanded = {
+    for vm_name, vm_data in local.instances :
+      vm_name => [
+        for _, vm_network in vm_data.networks :
+          merge(
+            { network_attachment = vm_network },
+            { network_info = merge(
+                lookup(local.networks, vm_network.name, {}),
+                { name = vm_network.name}
+              )
+            },
+          )
+          if length(lookup(local.networks, vm_network.name, {})) > 0
+      ]
+  }
+
+  # Group instance's networks by type for easier attachments later
+  instance_networks_grouped = {
+    for vm_name, vm_networks in local.instance_networks_expanded:
+      vm_name => {
+        nat = distinct([
+          for _, vm_network in vm_networks:
+            vm_network if vm_network.network_info.mode == "nat"
+        ])
+        macvtap = distinct([
+          for _, vm_network in vm_networks:
+            vm_network if vm_network.network_info.mode == "macvtap"
+        ])
+      }
+  }
+}
+# Create all instances
+resource "libvirt_domain" "instance" {
   for_each = local.instances
 
   depends_on = [
-    libvirt_network.kube_nat
+    libvirt_network.nat
   ]
 
   name   = each.key
@@ -13,21 +47,32 @@ resource "libvirt_domain" "kube_vm" {
 
   cloudinit = libvirt_cloudinit_disk.cloud_init[each.key].id
 
+  # Attach NAT networks
   dynamic "network_interface" {
-    for_each = lower(local.networks.mode) == "nat" ? [1] : []
+    for_each = local.instance_networks_grouped[each.key].nat
+
+    iterator = network
     content {
-      network_id = libvirt_network.kube_nat[0].id
+      network_id = libvirt_network.nat[network.value["network_attachment"]["name"]].id
       hostname = each.key
-      addresses = [for i, v in each.value.addresses: split("/", v)[0]]
-      #wait_for_lease = true
+      # Guest VM's virtualized network interface will claim the requested IP to the virtual NAT on the Host
+      # On the system level, the interface in Linux is configured in DHCP mode by using cloud-init
+      # WARNING: Addresses not in CIDR notation here
+      addresses = [split("/", network.value["network_attachment"]["address"])[0]]
+      wait_for_lease = true
     }
   }
 
+  # Attach MACVTAP networks
   dynamic "network_interface" {
-    for_each = lower(local.networks.mode) == "macvtap" ? [1] : []
+    for_each = local.instance_networks_grouped[each.key].macvtap
+
+    iterator = network
     content {
-      macvtap = local.networks.macvtap.interface
+      macvtap = network.value["network_info"]["interface"]
       hostname = each.key
+      # Guest virtualized network interface is connected directly to a physical device on the Host,
+      # As a result, requested IP address can only be claimed by the OS: Linux is configured in static mode by cloud-init
     }
   }
 

@@ -1,14 +1,21 @@
-# Create a NAT private network
+# Get only NAT networks
+locals {
+  networks_nat = tomap({
+    for i, v in local.networks :
+    i => v if v.mode == "nat"
+  })
+}
+# Create all NAT networks
 # Ref: https://registry.terraform.io/providers/dmacvicar/libvirt/latest/docs/resources/domain#handling-network-interfaces
-resource "libvirt_network" "kube_nat" {
-  count = lower(local.networks.mode) == "nat" ? 1 : 0
+resource "libvirt_network" "nat" {
+  for_each = local.networks_nat
 
-  name = "kube_nat"
+  name = each.key
   mode = "nat"
-  bridge = "nat0"
-  domain = "k8s.local"
+  bridge = each.key
+  domain = join(".", [each.key, "local"])
 
-  addresses = local.networks.nat.addresses #CIDR notation
+  addresses = each.value.dhcp_address_blocks
 
   dhcp { enabled = true }
 

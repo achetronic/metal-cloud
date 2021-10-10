@@ -1,15 +1,17 @@
-#
-resource "libvirt_pool" "kube_pool" {
-  name = "kube_pool"
+# Create a dir where all the volumes will be created
+resource "libvirt_pool" "volume_pool" {
+
+  name = "volume_pool"
   type = "dir"
-  path = "/home/slimbook/kube_pool"
+  path = "/home/slimbook/volume_pool"
 }
 
-# We fetch the latest ubuntu release image from their mirrors
+# Fetch the latest ubuntu release image from their mirrors
+# DISCLAIMER: Using Ubuntu/Debian because the author's obsession
 resource "libvirt_volume" "os_image" {
   name   = "ubuntu-hirsute.qcow2"
   source = "https://cloud-images.ubuntu.com/releases/hirsute/release/ubuntu-21.04-server-cloudimg-amd64.img"
-  pool   = libvirt_pool.kube_pool.name
+  pool   = libvirt_pool.volume_pool.name
 }
 
 # CloudInit volume to perform changes at runtime: add our ssh-key to the instance and more
@@ -41,11 +43,11 @@ locals {
 
   # Parsed network config file for Cloud Init
   network_config = {
-    for i, v in local.instances :
-      i => templatefile("${path.module}/templates/cloud-init/network_config.cfg", {
-        addresses = v.addresses
-        gateway_ipv4 =  lookup(local.networks, local.networks.mode, {}).gateway_ipv4
-      })
+    for vm_name, vm_data in local.instance_networks_expanded:
+      vm_name => templatefile(
+        "${path.module}/templates/cloud-init/network_config.cfg",
+        { networks = vm_data }
+      )
   }
 }
 # Volume for bootstrapping instances using Cloud Init
@@ -55,17 +57,17 @@ resource "libvirt_cloudinit_disk" "cloud_init" {
   name           = join("", ["cloud-init-", each.key, ".iso"])
   user_data      = local.user_data[each.key]
   network_config = local.network_config[each.key]
-  pool           = libvirt_pool.kube_pool.name
+  pool           = libvirt_pool.volume_pool.name
 }
 
-# General purpose volume
+# General purpose volumes for all the instances
 resource "libvirt_volume" "kube_disk" {
   for_each = local.instances
 
   name = join("", [each.key, ".qcow2"])
   base_volume_id = libvirt_volume.os_image.id
-  pool = libvirt_pool.kube_pool.name
+  pool = libvirt_pool.volume_pool.name
 
-  # 10GB as bytes
-  size = 10000000000
+  # 10GB (as bytes) as default
+  size = try(each.value.disk, 10*1000*1000*1000)
 }

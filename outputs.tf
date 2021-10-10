@@ -1,6 +1,6 @@
-# Map of instances' complete information
 locals {
-  instances_output = {
+  # Prepare relevant information about recently modified instances
+  instances_information = {
     for i, v in local.instances:
       i => merge(v, {
         hostname = i
@@ -9,7 +9,27 @@ locals {
         ssh-keys = local.instances_ssh_keys
       })
   }
+
+  # Encode output in YAML and replace all the strange symbols on the keys
+  instances_information_yaml = replace(
+    yamlencode(local.instances_information),
+    "/((?:^|\n)[\\s-]*)\"([\\w-]+)\":/", "$1$2:"
+  )
 }
-output "instances" {
-  value = local.instances_output
+
+# Outputs all relevant information to connect to the instances
+output "instances_information" {
+  value = local.instances_information_yaml
+}
+
+# Outputs instances' networks complete information
+output "instance_networks_expanded" {
+  sensitive = true
+  value = local.instance_networks_expanded
+}
+
+# Output instance networks grouped by type
+output "instance_networks_grouped" {
+  sensitive = true
+  value = local.instance_networks_grouped
 }
