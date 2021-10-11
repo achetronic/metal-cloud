@@ -1,6 +1,5 @@
 # Create a dir where all the volumes will be created
 resource "libvirt_pool" "volume_pool" {
-
   name = "volume_pool"
   type = "dir"
   path = "/home/slimbook/volume_pool"
