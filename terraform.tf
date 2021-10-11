@@ -10,6 +10,6 @@ terraform {
 
 # Configure the Libvirt provider
 provider "libvirt" {
-  uri = "qemu+ssh://${var.bastion_connection.user}@${var.bastion_connection.address}/system"
+  uri = "qemu+ssh://${var.metal_connection.user}@${var.metal_connection.host}/system"
 }
 

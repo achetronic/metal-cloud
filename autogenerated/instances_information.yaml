@@ -1,0 +1,54 @@
+kube-loadbalancer-0:
+  disk: 10000000000
+  hostname: "kube-loadbalancer-0"
+  memory: 2048
+  networks:
+  - address: "10.10.10.10/24"
+    name: "virnat0"
+  - address: "192.168.0.210/24"
+    name: "external0"
+  password: "e779ljzgCSW1cXyE"
+  ssh-keys:
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0eeU9tA7oqM6oCpzU2oJyrQw2V7SICm9Vfj0pSovV/
+    achetronic@zeus"
+  user: "ubuntu"
+  vcpu: 2
+kube-master-0:
+  disk: 10000000000
+  hostname: "kube-master-0"
+  memory: 2048
+  networks:
+  - address: "10.10.10.20/24"
+    name: "virnat0"
+  password: "AZ9te1za888Fz5Da"
+  ssh-keys:
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0eeU9tA7oqM6oCpzU2oJyrQw2V7SICm9Vfj0pSovV/
+    achetronic@zeus"
+  user: "ubuntu"
+  vcpu: 2
+kube-master-1:
+  disk: 10000000000
+  hostname: "kube-master-1"
+  memory: 2048
+  networks:
+  - address: "10.10.10.21/24"
+    name: "virnat0"
+  password: "3jC5k0o2OPeTgZZv"
+  ssh-keys:
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0eeU9tA7oqM6oCpzU2oJyrQw2V7SICm9Vfj0pSovV/
+    achetronic@zeus"
+  user: "ubuntu"
+  vcpu: 2
+kube-worker-0:
+  disk: 20000000000
+  hostname: "kube-worker-0"
+  memory: 2048
+  networks:
+  - address: "10.10.10.30/24"
+    name: "virnat0"
+  password: "AUWMDwpxAhn3S66U"
+  ssh-keys:
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0eeU9tA7oqM6oCpzU2oJyrQw2V7SICm9Vfj0pSovV/
+    achetronic@zeus"
+  user: "ubuntu"
+  vcpu: 2

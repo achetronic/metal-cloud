@@ -19,6 +19,7 @@ locals {
 
 # Outputs all relevant information to connect to the instances
 output "instances_information" {
+  sensitive = true
   value = local.instances_information_yaml
 }
 

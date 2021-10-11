@@ -1,14 +1,14 @@
-# 1. Bastion SSH key
-variable "bastion_connection" {
+# Connection to the metal server
+variable "metal_connection" {
   type = object({
-    address = string,
+    host = string,
     user = string,
     sshKeyPath = string
   })
 
   default = {
-      address = "192.168.0.119",
-      user = "slimbook",
+      host = "192.168.0.100",
+      user = "root",
       sshKeyPath = "~/.ssh/id_ed25519"
   }
 }
