@@ -30,7 +30,7 @@ function update_packages_list () {
   EXIT_CODE=0
 
   echo "[···] Updating packages lists"
-  apt-get --quiet update 2>/dev/null || EXIT_CODE=$?
+  apt-get --quiet update  || EXIT_CODE=$?
 
   case $EXIT_CODE in
   0)
