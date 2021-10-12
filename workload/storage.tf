@@ -2,7 +2,7 @@
 resource "libvirt_pool" "volume_pool" {
   name = "volume_pool"
   type = "dir"
-  path = "/home/${var.ssh_connection.user}/volume_pool"
+  path = "/home/${var.SSH_USERNAME}/volume_pool"
 }
 
 # Fetch the latest ubuntu release image from their mirrors

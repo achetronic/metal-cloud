@@ -7,25 +7,25 @@ resource "null_resource" "install_dependencies" {
 
     connection {
       type        = "ssh"
-      host        = "${var.ssh_connection.host}"
-      private_key = file("${var.ssh_connection.sshKeyPath}")
-      user        = "${var.ssh_connection.user}"
-      password    = "${var.ssh_connection.password}"
+      host        = "${var.SSH_HOST}"
+      private_key = file("${var.SSH_PRIVATE_KEY_PATH}")
+      user        = "${var.SSH_USERNAME}"
+      password    = "${var.SSH_PASSWORD}"
     }
   }
 
   provisioner "remote-exec" {
     inline = [
       "chmod +x /tmp/install-dependencies.sh",
-      "echo ${var.ssh_connection.password} | sudo -S bash /tmp/install-dependencies.sh ${var.ssh_connection.user}",
+      "echo ${var.SSH_PASSWORD} | sudo -S bash /tmp/install-dependencies.sh ${var.SSH_USERNAME}",
     ]
 
     connection {
       type        = "ssh"
-      host        = "${var.ssh_connection.host}"
-      private_key = file("${var.ssh_connection.sshKeyPath}")
-      user        = "${var.ssh_connection.user}"
-      password    = "${var.ssh_connection.password}"
+      host        = "${var.SSH_HOST}"
+      private_key = file("${var.SSH_PRIVATE_KEY_PATH}")
+      user        = "${var.SSH_USERNAME}"
+      password    = "${var.SSH_PASSWORD}"
     }
   }
 }
@@ -33,6 +33,6 @@ resource "null_resource" "install_dependencies" {
 # Upload current public key to host
 resource "null_resource" "upload_public_key" {
   provisioner "local-exec" {
-    command = "echo ${var.ssh_connection.password} | ssh-copy-id -f ${var.ssh_connection.user}@${var.ssh_connection.host}"
+    command = "echo ${var.SSH_PASSWORD} | ssh-copy-id -f ${var.SSH_USERNAME}@${var.SSH_HOST}"
   }
 }
