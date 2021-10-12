@@ -28,10 +28,6 @@ resource "null_resource" "install_dependencies" {
       password    = "${var.ssh_connection.password}"
     }
   }
-
-  provisioner "local-exec" {
-    command = "echo ${var.ssh_connection.password} | ssh-copy-id -f ${var.ssh_connection.user}@${var.ssh_connection.host}"
-  }
 }
 
 # Upload current public key to host
