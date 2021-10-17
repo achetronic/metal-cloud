@@ -30,5 +30,5 @@ terraform apply --target module.init
 
 4. Create your VMs.
 ```bash
-terraform apply --target module.workload
+terraform apply
 ```
