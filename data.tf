@@ -69,7 +69,7 @@ locals {
         {
           name    = "virnat0"
           address = "10.10.10.10/24"
-        }, {
+        },{
           name    = "external0"
           address = "192.168.0.210/24"
         }

@@ -6,6 +6,28 @@ set -eo pipefail
 
 USERNAME=$1
 
+# Path to the QEMU config file used by libvirt
+_QEMU_CONFIG_PATH="/etc/libvirt/qemu.conf"
+
+# Check virtualization availability
+function install_cpu_checker () {
+  EXIT_CODE=0
+
+  echo "[···] Installing CPU checker"
+  apt-get install cpu-checker 2>/dev/null || EXIT_CODE=$?
+
+  case $EXIT_CODE in
+  0)
+    # All ok
+    ;;
+  *)
+    # Other errors
+    echo "[ERROR] KVM not available"
+    exit $EXIT_CODE
+    ;;
+  esac
+}
+
 # Check virtualization availability
 function check_kvm () {
   EXIT_CODE=0
@@ -87,6 +109,46 @@ function add_user_to_libvirt_group () {
   esac
 }
 
+# Disable security_driver parameter for Qemu
+# Ref: https://github.com/dmacvicar/terraform-provider-libvirt/issues/546
+function disable_qemu_security_driver () {
+  EXIT_CODE=0
+
+  echo "[···] Disabling security driver for Qemu"
+  sed --in-place -E s/"^#?security_driver = \".*\"$"/"security_driver = \"none\""/ "${_QEMU_CONFIG_PATH}" || EXIT_CODE=$?
+
+  case $EXIT_CODE in
+  0)
+    # All ok
+    ;;
+  *)
+    # Other errors
+    echo "[ERROR] Impossible to perform this action"
+    exit $EXIT_CODE
+    ;;
+  esac
+}
+
+# Disable security_driver parameter for Qemu
+# Ref: https://github.com/dmacvicar/terraform-provider-libvirt/issues/546
+function restart_libvirt () {
+  EXIT_CODE=0
+
+  echo "[···] Restarting libvirt to apply all changes"
+  systemctl restart libvirtd || EXIT_CODE=$?
+
+  case $EXIT_CODE in
+  0)
+    # All ok
+    ;;
+  *)
+    # Other errors
+    echo "[ERROR] Impossible to perform this action"
+    exit $EXIT_CODE
+    ;;
+  esac
+}
+
 # Install Cockpit as GUI to review
 function install_cockpit () {
   EXIT_CODE=0
@@ -109,8 +171,11 @@ function install_cockpit () {
 }
 
 echo "[···] Installing dependencies for the user: $USERNAME"
+install_cpu_checker
 check_kvm
 update_packages_list
 install_virtualization_packages
 add_user_to_libvirt_group
+disable_qemu_security_driver
+restart_libvirt
 install_cockpit

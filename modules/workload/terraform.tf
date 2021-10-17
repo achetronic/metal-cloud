@@ -10,5 +10,5 @@ terraform {
 
 # Configure the Libvirt provider
 provider "libvirt" {
-  uri = "qemu+ssh://${var.ssh_connection.username}@${var.ssh_connection.host}/system"
+  uri = "qemu+ssh://${var.ssh_connection.username}@${var.ssh_connection.host}/system?keyfile=${var.ssh_connection.private_key_path}"
 }

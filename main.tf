@@ -1,5 +1,6 @@
-module "bootstrap" {
-  source = "./modules/bootstrap"
+#
+module "init" {
+  source = "./modules/init"
 
   # Variables definition
   ssh_connection = {
@@ -10,10 +11,9 @@ module "bootstrap" {
   }
 }
 
+#
 module "workload" {
   source = "./modules/workload"
-
-  #depends_on = [module.bootstrap]
 
   # Variables definition
   ssh_connection = {
