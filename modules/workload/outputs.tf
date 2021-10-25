@@ -1,12 +1,15 @@
 locals {
   # Prepare relevant information about recently modified instances
   instances_information = {
-    for i, v in var.instances:
-      i => merge(v, {
-        hostname = i
+    for instance, v in var.instances:
+      instance => merge(v, {
+        hostname = instance
         user = "ubuntu"
-        password = random_string.instance_password[i].result
-        ssh-keys = local.instances_ssh_keys
+        password = random_string.instance_password[instance].result
+        ssh-keys = concat(
+          [tls_private_key.instance_ssh_key[instance].public_key_openssh],
+          local.instances_external_ssh_keys
+        )
       })
   }
 

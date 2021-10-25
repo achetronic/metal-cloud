@@ -101,6 +101,18 @@ locals {
       ]
     }
 
+    kube-master-2 = {
+      vcpu     = 2
+      memory   = 2048 # 2GB
+      disk     = 10000000000 # 10GB
+      networks = [
+        {
+          name    = "virnat0"
+          address = "10.10.10.22/24"
+        }
+      ]
+    }
+
     # Define the workers
     kube-worker-0 = {
       vcpu     = 2

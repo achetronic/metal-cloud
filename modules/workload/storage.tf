@@ -15,6 +15,8 @@ resource "libvirt_volume" "os_image" {
 
 # CloudInit volume to perform changes at runtime: add our ssh-key to the instance and more
 # https://github.com/dmacvicar/terraform-provider-libvirt/blob/master/website/docs/r/cloudinit.html.markdown
+
+# Create a random string to be used as password for each instance
 resource "random_string" "instance_password" {
   for_each = var.instances
 
@@ -22,21 +24,45 @@ resource "random_string" "instance_password" {
   special          = false
   override_special = "_%@"
 }
+
+# Create an authorized SSH key pair for each instance
+resource "tls_private_key" "instance_ssh_key" {
+  for_each = var.instances
+
+  algorithm = "RSA"
+  rsa_bits  = "4096"
+}
+
+# Export the SSH private key for each instance
+resource "local_file" "private_key" {
+  depends_on = [tls_private_key.instance_ssh_key]
+
+  for_each = var.instances
+
+  content         = tls_private_key.instance_ssh_key[each.key].private_key_pem
+  filename        = join(".", [each.key, "pem"])
+  file_permission = "0600"
+}
+
+
 locals {
   # List of SSH keys allowed on instances
-  instances_ssh_keys = [
-    for i, v in fileset(path.module, "ssh-keys/*.pub") :
+  instances_external_ssh_keys = [
+    for i, v in fileset(path.module, "external-ssh-keys/*.pub") :
       trimspace(file("${path.module}/${v}"))
   ]
 
   # Parsed user-data config file for Cloud Init
   user_data = {
-    for i, _ in var.instances :
-      i => templatefile("${path.module}/templates/cloud-init/user_data.cfg", {
-        hostname = i
+    for instance, _ in var.instances :
+      instance => templatefile("${path.module}/templates/cloud-init/user_data.cfg", {
+        hostname = instance
         user     = "ubuntu"
-        password = random_string.instance_password[i].result
-        ssh-keys = local.instances_ssh_keys
+        password = random_string.instance_password[instance].result
+        ssh-keys = concat(
+          [tls_private_key.instance_ssh_key[instance].public_key_openssh],
+          local.instances_external_ssh_keys
+        )
       })
   }
 
@@ -70,3 +96,4 @@ resource "libvirt_volume" "kube_disk" {
   # 10GB (as bytes) as default
   size = try(each.value.disk, 10*1000*1000*1000)
 }
+

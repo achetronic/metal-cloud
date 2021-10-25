@@ -32,3 +32,15 @@ terraform apply --target module.init
 ```bash
 terraform apply
 ```
+
+## Security considerations
+For security reasons, a random password and an SSH key-pair are auto-generated per instance.
+This means that each instance has a different password and a different authorized SSH key.
+
+When the `terraform apply` is complete, all the SSH private key files are exported in order 
+to allow you to access or manage them.
+
+There is a special folder called `external-ssh-keys` which was created for the special case that several
+well-known SSH keys must be authorized in all the instances at the same time.
+This can be risky and must be used under your own responsibility. If you need it, place some `.pub` key files
+inside, and they will be directly configured and authorized in all the instances.
