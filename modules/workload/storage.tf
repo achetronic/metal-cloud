@@ -49,7 +49,7 @@ locals {
   # List of SSH keys allowed on instances
   instances_external_ssh_keys = [
     for i, v in fileset("${path.root}/files/input/external-ssh-keys", "*.pub") :
-      trimspace(file("${path.module}/${v}"))
+      trimspace(file("${path.root}/files/input/external-ssh-keys/${v}"))
   ]
 
   # Parsed user-data config file for Cloud Init
