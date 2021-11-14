@@ -40,7 +40,7 @@ resource "local_file" "private_key" {
   for_each = var.instances
 
   content         = tls_private_key.instance_ssh_key[each.key].private_key_pem
-  filename        = join(".", [each.key, "pem"])
+  filename        = "${path.root}/files/output/${each.key}.pem"
   file_permission = "0600"
 }
 
@@ -48,7 +48,7 @@ resource "local_file" "private_key" {
 locals {
   # List of SSH keys allowed on instances
   instances_external_ssh_keys = [
-    for i, v in fileset(path.module, "external-ssh-keys/*.pub") :
+    for i, v in fileset("${path.root}/files/input/external-ssh-keys", "*.pub") :
       trimspace(file("${path.module}/${v}"))
   ]
 

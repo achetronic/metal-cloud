@@ -42,7 +42,7 @@ by using `terraform state show ···`
 When the `terraform apply` is complete, all the SSH private key files are exported in order 
 to allow you to access or manage them.
 
-There is a special directory located in `modules/workload/external-ssh-keys`. 
+There is a special directory located in `files/input/external-ssh-keys`. 
 This was created for the special case that several well-known SSH keys must be authorized 
 in all the instances at the same time.
 This can be risky and must be used under your own responsibility. If you need it, place some `.pub` key files
