@@ -1,0 +1,3 @@
+- name: Install Cockpit on Ubuntu 20.04
+  import_tasks: ubuntu-20-04.yaml
+  when: (ansible_facts['distribution']|lower == "ubuntu") and (ansible_facts['distribution_version'] == "20.04")

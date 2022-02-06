@@ -1,0 +1,68 @@
+# Update repository poackages
+- name: Update package lists
+  ansible.builtin.apt:
+    update_cache: yes
+
+# Check CPU hypervisor capabilities
+- name: Install CPU Checker
+  ansible.builtin.apt:
+    name: cpu-checker
+    state: present
+    install_recommends: no
+
+- name: Check KVM
+  register: kvmresult
+  ansible.builtin.shell: kvm-ok
+  args:
+    warn: no
+
+# Install hypervisor capabilities
+- name: Install QEMU packages
+  ansible.builtin.apt:
+    name: qemu-kvm 
+    state: present
+    install_recommends: no
+
+- name: Install Libvirt packages
+  ansible.builtin.apt:
+    pkg:
+      - libvirt-daemon-system
+      - libvirt-clients
+    state: present
+    install_recommends: no
+
+- name: Install bridged networking packages
+  ansible.builtin.apt:
+    name: bridge-utils
+    state: present
+    install_recommends: no
+
+# Clean installation trash
+- name: Remove useless packages from the cache
+  apt:
+    autoclean: yes
+
+- name: Remove dependencies that are no longer required
+  apt:
+    autoremove: yes
+
+# Prepare hypervisor for workloads
+- name: Add the user "{{ ansible_facts['user_id'] }}" to 'libvirt' group
+  ansible.builtin.user:
+    name: "{{ ansible_facts['user_id'] }}"
+    shell: /bin/bash
+    groups: libvirt
+    append: yes
+
+# Ref: https://github.com/dmacvicar/terraform-provider-libvirt/issues/546
+- name: Disable security driver for QEMU
+  ansible.builtin.replace:
+    path: /etc/libvirt/qemu.conf
+    regexp: '^#?security_driver = ".*"$'
+    replace: 'security_driver = "none"'
+
+- name: Reload service libvirt
+  ansible.builtin.systemd:
+    name: libvirtd
+    state: reloaded
+    enabled: yes

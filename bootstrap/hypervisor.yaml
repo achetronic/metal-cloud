@@ -1,0 +1,14 @@
+- name: Bootstrap hypervisor
+  hosts: hypervisors
+  tasks:
+#    - name: Install hypervisor capabilities
+#      include_role:
+#        name: hypervisor-capabilities
+
+#    - name: Install Cockpit
+#      include_role:
+#        name: cockpit
+        
+    - name: Deploy SSH key
+      include_role:
+        name: ssh-key

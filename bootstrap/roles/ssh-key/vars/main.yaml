@@ -1,0 +1,4 @@
+random: "{{ lookup('community.general.random_string', length=12, upper=false, numbers=false, special=false) }}"
+ssh_key_path: "../files/output"
+external_ssh_keys_path: "../files/input/external-ssh-keys"
+

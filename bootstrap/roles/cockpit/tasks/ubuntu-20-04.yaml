@@ -1,0 +1,22 @@
+# Update repository poackages
+- name: Update package lists
+  ansible.builtin.apt:
+    update_cache: yes
+
+# Install GUI
+- name: Install CPU Checker
+  ansible.builtin.apt:
+    pkg:
+      - cockpit
+      - cockpit-machines
+    state: present
+    install_recommends: no
+
+# Clean installation trash
+- name: Remove useless packages from the cache
+  apt:
+    autoclean: yes
+
+- name: Remove dependencies that are no longer required
+  apt:
+    autoremove: yes
