@@ -11,13 +11,6 @@ variable "SSH_USERNAME" {
   description = "The username to be authenticated in the SSH host"
 }
 
-# Password to be authenticated in the host
-# This variable is only used to bootstrap everything
-variable "SSH_PASSWORD" {
-  type = string
-  description = "The password to be authenticated in the SSH host"
-}
-
 # Path to the private key to be uploaded to the host
 # This key will be used for API calls
 variable "SSH_PRIVATE_KEY_PATH" {

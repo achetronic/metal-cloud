@@ -1,17 +1,4 @@
-#
-module "init" {
-  source = "./modules/init"
-
-  # Variables definition
-  ssh_connection = {
-    host = var.SSH_HOST
-    username = var.SSH_USERNAME
-    password = var.SSH_PASSWORD
-    private_key_path = var.SSH_PRIVATE_KEY_PATH
-  }
-}
-
-#
+# Create the workload resources in the target host through SSH
 module "workload" {
   source = "./modules/workload"
 

@@ -1,0 +1,17 @@
+# The endpoint for S3 on Minio or TrueNAS
+endpoint = "http://minio.local:9000"
+
+# Bucket related parameters
+bucket = "metal-cloud"
+key = "kubernetes/terraform.tfstate"
+
+# Access credentials
+access_key="AKIAIOSFODNN7EXAMPLE"
+secret_key="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+
+# Set some parameters according to common on-prem environments
+region = "main"
+skip_credentials_validation = true
+skip_metadata_api_check = true
+skip_region_validation = true
+force_path_style = true
