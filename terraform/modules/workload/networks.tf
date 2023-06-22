@@ -10,8 +10,8 @@ locals {
 resource "libvirt_network" "nat" {
   for_each = local.networks_nat
 
-  name = each.key
-  mode = "nat"
+  name   = each.key
+  mode   = "nat"
   bridge = each.key
   domain = join(".", [each.key, "local"])
 
@@ -20,7 +20,7 @@ resource "libvirt_network" "nat" {
   dhcp { enabled = true }
 
   dns {
-    enabled = true
+    enabled    = true
     local_only = false
   }
 }

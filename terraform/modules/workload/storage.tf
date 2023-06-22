@@ -49,30 +49,30 @@ locals {
   # List of SSH keys allowed on instances
   instances_external_ssh_keys = [
     for i, v in fileset("${path.root}/files/input/external-ssh-keys", "*.pub") :
-      trimspace(file("${path.root}/files/input/external-ssh-keys/${v}"))
+    trimspace(file("${path.root}/files/input/external-ssh-keys/${v}"))
   ]
 
   # Parsed user-data config file for Cloud Init
   user_data = {
     for instance, _ in var.instances :
-      instance => templatefile("${path.module}/templates/cloud-init/user_data.cfg", {
-        hostname = instance
-        user     = "ubuntu"
-        password = random_string.instance_password[instance].result
-        ssh-keys = concat(
-          [tls_private_key.instance_ssh_key[instance].public_key_openssh],
-          local.instances_external_ssh_keys
-        )
-      })
+    instance => templatefile("${path.module}/templates/cloud-init/user_data.cfg", {
+      hostname = instance
+      user     = "ubuntu"
+      password = random_string.instance_password[instance].result
+      ssh-keys = concat(
+        [tls_private_key.instance_ssh_key[instance].public_key_openssh],
+        local.instances_external_ssh_keys
+      )
+    })
   }
 
   # Parsed network config file for Cloud Init
   network_config = {
-    for vm_name, vm_data in local.instance_networks_expanded:
-      vm_name => templatefile(
-        "${path.module}/templates/cloud-init/network_config.cfg",
-        { networks = vm_data }
-      )
+    for vm_name, vm_data in local.instance_networks_expanded :
+    vm_name => templatefile(
+      "${path.module}/templates/cloud-init/network_config.cfg",
+      { networks = vm_data }
+    )
   }
 }
 # Volume for bootstrapping instances using Cloud Init
@@ -89,11 +89,11 @@ resource "libvirt_cloudinit_disk" "cloud_init" {
 resource "libvirt_volume" "kube_disk" {
   for_each = var.instances
 
-  name = join("", [each.key, ".qcow2"])
+  name           = join("", [each.key, ".qcow2"])
   base_volume_id = libvirt_volume.os_image.id
-  pool = libvirt_pool.volume_pool.name
+  pool           = libvirt_pool.volume_pool.name
 
   # 10GB (as bytes) as default
-  size = try(each.value.disk, 10*1000*1000*1000)
+  size = try(each.value.disk, 10 * 1000 * 1000 * 1000)
 }
 
