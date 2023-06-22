@@ -1,8 +1,8 @@
 # Create a dir where all the volumes will be created
 resource "libvirt_pool" "volume_pool" {
-  name = "volume_pool"
+  name = "metal-cloud-volume-pool"
   type = "dir"
-  path = "/home/${var.ssh_connection.username}/volume_pool"
+  path = "/opt/libvirt/metal-cloud-volume-pool"
 }
 
 # Fetch the latest ubuntu release image from their mirrors
