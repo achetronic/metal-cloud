@@ -129,8 +129,7 @@ function disable_qemu_security_driver () {
   esac
 }
 
-# Disable security_driver parameter for Qemu
-# Ref: https://github.com/dmacvicar/terraform-provider-libvirt/issues/546
+# Restart libvirt
 function restart_libvirt () {
   EXIT_CODE=0
 
