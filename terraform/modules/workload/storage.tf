@@ -8,8 +8,8 @@ resource "libvirt_pool" "volume_pool" {
 # Fetch the latest ubuntu release image from their mirrors
 # DISCLAIMER: Using Ubuntu/Debian because the author's obsession
 resource "libvirt_volume" "os_image" {
-  name   = "ubuntu-hirsute.qcow2"
-  source = "https://cloud-images.ubuntu.com/releases/hirsute/release/ubuntu-21.04-server-cloudimg-amd64.img"
+  name   = "ubuntu-22.04.qcow2"
+  source = "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
   pool   = libvirt_pool.volume_pool.name
 }
 
