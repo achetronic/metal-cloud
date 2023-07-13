@@ -18,10 +18,10 @@ variable "ssh_connection" {
 # which networks of type NAT or macvtap will be created and attachable
 variable "networks" {
   type = map(object({
-    mode = string
+    mode                = string
     dhcp_address_blocks = list(string)
-    gateway_address = string
-    interface = string
+    gateway_address     = string
+    interface           = string
   }))
   description = "Networks definition block"
 }
@@ -30,11 +30,11 @@ variable "networks" {
 # (and their resources) that will be created
 variable "instances" {
   type = map(object({
-    vcpu = number
+    vcpu   = number
     memory = number
-    disk = number
+    disk   = number
     networks = list(object({
-      name = string
+      name    = string
       address = string
     }))
   }))

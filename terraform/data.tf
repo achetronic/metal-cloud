@@ -62,14 +62,14 @@ locals {
 
     # Define the LoadBalancer
     kube-loadbalancer-0 = {
-      vcpu     = 2
-      memory   = 2048 # 2GB
-      disk     = 10000000000 # 10GB
+      vcpu   = 2
+      memory = 2048        # 2GB
+      disk   = 10000000000 # 10GB
       networks = [
         {
           name    = "virnat0"
           address = "10.10.10.10/24"
-        },{
+          }, {
           name    = "external0"
           address = "192.168.0.210/24"
         }
@@ -78,9 +78,9 @@ locals {
 
     # Define the masters
     kube-master-0 = {
-      vcpu     = 2
-      memory   = 2048 # 2GB
-      disk     = 10000000000 # 10GB
+      vcpu   = 2
+      memory = 2048        # 2GB
+      disk   = 10000000000 # 10GB
       networks = [
         {
           name    = "virnat0"
@@ -90,9 +90,9 @@ locals {
     }
 
     kube-master-1 = {
-      vcpu     = 2
-      memory   = 2048 # 2GB
-      disk     = 10000000000 # 10GB
+      vcpu   = 2
+      memory = 2048        # 2GB
+      disk   = 10000000000 # 10GB
       networks = [
         {
           name    = "virnat0"
@@ -102,9 +102,9 @@ locals {
     }
 
     kube-master-2 = {
-      vcpu     = 2
-      memory   = 2048 # 2GB
-      disk     = 10000000000 # 10GB
+      vcpu   = 2
+      memory = 2048        # 2GB
+      disk   = 10000000000 # 10GB
       networks = [
         {
           name    = "virnat0"
@@ -115,9 +115,9 @@ locals {
 
     # Define the workers
     kube-worker-0 = {
-      vcpu     = 2
-      memory   = 2048 # 2GB
-      disk     = 20000000000 # 20GB
+      vcpu   = 2
+      memory = 2048        # 2GB
+      disk   = 20000000000 # 20GB
       networks = [
         {
           name    = "virnat0"

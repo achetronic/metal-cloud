@@ -1,15 +1,15 @@
 # Create a dir where all the volumes will be created
 resource "libvirt_pool" "volume_pool" {
-  name = "volume_pool"
+  name = "metal-cloud-volume-pool"
   type = "dir"
-  path = "/home/${var.ssh_connection.username}/volume_pool"
+  path = "/opt/libvirt/metal-cloud-volume-pool"
 }
 
 # Fetch the latest ubuntu release image from their mirrors
 # DISCLAIMER: Using Ubuntu/Debian because the author's obsession
 resource "libvirt_volume" "os_image" {
-  name   = "ubuntu-hirsute.qcow2"
-  source = "https://cloud-images.ubuntu.com/releases/hirsute/release/ubuntu-21.04-server-cloudimg-amd64.img"
+  name   = "ubuntu-22.04.qcow2"
+  source = "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
   pool   = libvirt_pool.volume_pool.name
 }
 
@@ -49,30 +49,30 @@ locals {
   # List of SSH keys allowed on instances
   instances_external_ssh_keys = [
     for i, v in fileset("${path.root}/files/input/external-ssh-keys", "*.pub") :
-      trimspace(file("${path.root}/files/input/external-ssh-keys/${v}"))
+    trimspace(file("${path.root}/files/input/external-ssh-keys/${v}"))
   ]
 
   # Parsed user-data config file for Cloud Init
   user_data = {
     for instance, _ in var.instances :
-      instance => templatefile("${path.module}/templates/cloud-init/user_data.cfg", {
-        hostname = instance
-        user     = "ubuntu"
-        password = random_string.instance_password[instance].result
-        ssh-keys = concat(
-          [tls_private_key.instance_ssh_key[instance].public_key_openssh],
-          local.instances_external_ssh_keys
-        )
-      })
+    instance => templatefile("${path.module}/templates/cloud-init/user_data.cfg", {
+      hostname = instance
+      user     = "ubuntu"
+      password = random_string.instance_password[instance].result
+      ssh-keys = concat(
+        [tls_private_key.instance_ssh_key[instance].public_key_openssh],
+        local.instances_external_ssh_keys
+      )
+    })
   }
 
   # Parsed network config file for Cloud Init
   network_config = {
-    for vm_name, vm_data in local.instance_networks_expanded:
-      vm_name => templatefile(
-        "${path.module}/templates/cloud-init/network_config.cfg",
-        { networks = vm_data }
-      )
+    for vm_name, vm_data in local.instance_networks_expanded :
+    vm_name => templatefile(
+      "${path.module}/templates/cloud-init/network_config.cfg",
+      { networks = vm_data }
+    )
   }
 }
 # Volume for bootstrapping instances using Cloud Init
@@ -89,11 +89,11 @@ resource "libvirt_cloudinit_disk" "cloud_init" {
 resource "libvirt_volume" "kube_disk" {
   for_each = var.instances
 
-  name = join("", [each.key, ".qcow2"])
+  name           = join("", [each.key, ".qcow2"])
   base_volume_id = libvirt_volume.os_image.id
-  pool = libvirt_pool.volume_pool.name
+  pool           = libvirt_pool.volume_pool.name
 
   # 10GB (as bytes) as default
-  size = try(each.value.disk, 10*1000*1000*1000)
+  size = try(each.value.disk, 10 * 1000 * 1000 * 1000)
 }
 
