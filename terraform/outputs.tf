@@ -22,18 +22,18 @@ locals {
 
 # Outputs all relevant information to connect to the instances
 output "instances_information" {
-  sensitive = true
+  sensitive = false
   value     = local.instances_information
 }
 
 # Outputs instances' networks complete information
 output "instance_networks_expanded" {
-  sensitive = true
+  sensitive = false
   value     = local.instance_networks_expanded
 }
 
 # Output instance networks grouped by type
 output "instance_networks_grouped" {
-  sensitive = true
+  sensitive = false
   value     = local.instance_networks_grouped
 }

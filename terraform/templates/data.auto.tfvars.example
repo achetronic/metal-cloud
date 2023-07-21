@@ -6,7 +6,6 @@ networks = {
 
   # Configuration for a NAT
   virnat0 = {
-    interface = ""
 
     # Type of network
     # Possible values: nat, macvtap
@@ -22,7 +21,6 @@ networks = {
 
   # Configuration for a second NAT
   virnat1 = {
-    interface = ""
 
     # Type of network
     # Possible values: nat, macvtap
@@ -61,6 +59,14 @@ instances = {
 
   # Define the LoadBalancer
   kube-loadbalancer-0 = {
+
+    # (Optional) Environment (arch and machine type) can be specified. For example, for those using too new ARM64
+    # environments such as 'Orange Pi 5', specify arch as 'aarch64' and the machine as 'virt' or 'virt-XX'
+    # and some tweaks will be applied under the hood.
+    # DISCLAIMER: this will be needed on all the guests as the host is the same
+    arch = "aarch64"
+    machine = "virt"
+
     vcpu = 2
     memory = 2048 # 2GB
     disk = 10000000000 # 10GB
@@ -83,6 +89,9 @@ instances = {
     networks = [{
         name = "virnat0"
         address = "10.10.10.20/24"
+
+        # (Optional) MAC address can be fixed. Useful to set simple static firewall rules
+        mac = "52:54:00:56:A9:77"
     }]
   }
 

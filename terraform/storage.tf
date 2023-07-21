@@ -8,8 +8,8 @@ resource "libvirt_pool" "volume_pool" {
 # Fetch the latest ubuntu release image from their mirrors
 # DISCLAIMER: Using Ubuntu/Debian because the author's obsession
 resource "libvirt_volume" "os_image" {
-  name   = "ubuntu-22.04.qcow2"
-  source = "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
+  name   = "ubuntu-23.04.qcow2"
+  source = "https://cloud-images.ubuntu.com/releases/23.04/release/ubuntu-23.04-server-cloudimg-arm64.img"
   pool   = libvirt_pool.volume_pool.name
 }
 
@@ -40,7 +40,10 @@ resource "local_file" "private_key" {
   for_each = var.instances
 
   content         = tls_private_key.instance_ssh_key[each.key].private_key_pem
-  filename        = "${path.root}/files/output/${each.key}.pem"
+  filename        = defaults(
+    "${var.globals.io_files.instances_ssh_keys_path}/${each.key}.pem",
+    "${path.root}/files/output/${each.key}.pem"
+  )
   file_permission = "0600"
 }
 
