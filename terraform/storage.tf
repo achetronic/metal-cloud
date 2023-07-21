@@ -33,6 +33,11 @@ resource "tls_private_key" "instance_ssh_key" {
   rsa_bits  = "4096"
 }
 
+locals {
+  # Computed path to the directory where instances' SSH keys will be created
+  computed_instances_ssh_keys_path = var.globals.io_files.instances_ssh_keys_path != null ? (
+    var.globals.io_files.instances_ssh_keys_path ) : "${path.root}/files/output"
+}
 # Export the SSH private key for each instance
 resource "local_file" "private_key" {
   depends_on = [tls_private_key.instance_ssh_key]
@@ -40,19 +45,21 @@ resource "local_file" "private_key" {
   for_each = var.instances
 
   content         = tls_private_key.instance_ssh_key[each.key].private_key_pem
-  filename        = defaults(
-    "${var.globals.io_files.instances_ssh_keys_path}/${each.key}.pem",
-    "${path.root}/files/output/${each.key}.pem"
-  )
+  filename        = "${local.computed_instances_ssh_keys_path}/${each.key}.pem"
+
   file_permission = "0600"
 }
 
 
 locals {
+  # Computed path to the directory where instances' SSH keys will be created
+  computed_instances_external_ssh_keys_path = var.globals.io_files.external_ssh_keys_path != null ? (
+    var.globals.io_files.external_ssh_keys_path) : "${path.root}/files/input/external-ssh-keys"
+
   # List of SSH keys allowed on instances
   instances_external_ssh_keys = [
-    for i, v in fileset("${path.root}/files/input/external-ssh-keys", "*.pub") :
-    trimspace(file("${path.root}/files/input/external-ssh-keys/${v}"))
+    for i, v in fileset(local.computed_instances_external_ssh_keys_path, "*.pub") :
+    trimspace(file("${local.computed_instances_external_ssh_keys_path}/${v}"))
   ]
 
   # Parsed user-data config file for Cloud Init
