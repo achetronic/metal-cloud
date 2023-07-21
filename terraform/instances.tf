@@ -37,7 +37,7 @@ locals {
   # { instance_x: true, instance_y: false}
   is_generic_arm64_instance = {
     for vm_name, vm_data in var.instances :
-    vm_name => (vm_data.arch == "aarch64" && startswith(vm_data.machine, "virt") ) ? true : false
+      vm_name => try( (vm_data.arch == "aarch64" && startswith(vm_data.machine, "virt") ? true : false), false )
   }
 }
 # Create all instances
@@ -135,7 +135,7 @@ resource "libvirt_domain" "instance" {
   }
 
   disk {
-    volume_id = libvirt_volume.kube_disk[each.key].id
+    volume_id = libvirt_volume.instance_disk[each.key].id
   }
 
   graphics {
@@ -146,13 +146,4 @@ resource "libvirt_domain" "instance" {
 
   qemu_agent = true
   autostart  = true
-}
-
-output "pepito" {
-
-  value = libvirt_domain.instance["kube-master-0"].xml
-}
-
-output "juanito" {
-  value = local.instance_networks_grouped
 }
