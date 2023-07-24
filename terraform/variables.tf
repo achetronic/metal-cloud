@@ -84,18 +84,28 @@ variable "instances" {
     networks = list(object({
       name    = string
       address = string
-      mac     = optional(string)
+      mac     = string
     }))
   }))
   description = "Instances definition block"
 
   validation {
     condition = alltrue([
-      for instance in var.instances :
-        (instance.arch == null ? true :
-          (contains(["aarch64", "x86_64"], instance.arch) ? true : false))
+      for instance_name, instance_definition in var.instances :
+        (instance_definition.arch == null ? true :
+          (contains(["aarch64", "x86_64"], instance_definition.arch) ? true : false))
     ])
 
     error_message = "Allowed values for instance.arch are \"aarch64\" or \"x86_64\"."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for instance_name, instance_definition in var.instances :
+      [for network in instance_definition.networks :
+        can(regex("^[a-fA-F0-9]{2}(:[a-fA-F0-9]{2}){5}$", network.mac)) ]
+    ]))
+
+    error_message = "Allowed values for instance.networks.mac are like: AA:BB:CC:DD:EE:FF."
   }
 }
