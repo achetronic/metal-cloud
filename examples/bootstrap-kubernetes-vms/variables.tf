@@ -2,7 +2,7 @@
 variable "SSH_HOST" {
   type        = string
   description = "The IP of the SSH host to connect to"
-  default = "192.168.2.138"
+  default     = "192.168.2.138"
 }
 
 # Username to be authenticated in the host
@@ -10,7 +10,7 @@ variable "SSH_HOST" {
 variable "SSH_USERNAME" {
   type        = string
   description = "The username to be authenticated in the SSH host"
-  default = "root"
+  default     = "root"
 }
 
 # Password to be authenticated in the host
@@ -18,13 +18,12 @@ variable "SSH_USERNAME" {
 variable "SSH_PASSWORD" {
   type        = string
   description = "The password to be authenticated in the SSH host"
-  default = "placeholder"
+  default     = "placeholder"
 }
 
-
-# Path to the private key to be uploaded to the host
+# Path to the ssh key (public or private) to be uploaded to the host
 # This key will be used for API calls
-variable "SSH_PRIVATE_KEY_PATH" {
-  description = "The path to the private key that will be authorized in the SSH host"
+variable "SSH_KEY_PATH" {
+  description = "The path to the ssh key that will be authorized in the SSH host"
   type        = string
 }

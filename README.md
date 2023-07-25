@@ -22,7 +22,7 @@ These can be declared as input vars inside a `.tfvars` file too
 export TF_VAR_SSH_HOST="XXX.XXX.XXX.XXX"
 export TF_VAR_SSH_USERNAME="yourUsername"
 export TF_VAR_SSH_PASSWORD="yourPassword"
-export TF_VAR_SSH_PRIVATE_KEY_PATH="~/.ssh/id_ed25519"
+export TF_VAR_SSH_KEY_PATH="~/.ssh/id_ed25519"
  ```
 
 ### 2. Install some REQUIRED dependencies in local machine
@@ -87,9 +87,9 @@ locals {
       host     = var.SSH_HOST
       username = var.SSH_USERNAME
 
-      password         = var.SSH_PASSWORD
-      private_key_path = var.SSH_PRIVATE_KEY_PATH
-      mode             = "password"
+      password = var.SSH_PASSWORD
+      key_path = var.SSH_KEY_PATH
+      mode     = "password"
     }
 
     # Parameters related to those files used/thrown at some point on VM creation
