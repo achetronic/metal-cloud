@@ -104,11 +104,15 @@ instances = {
     disk = 10000000000 # 10GB
     networks = [
       {
-        name = "virnat0"
+        name    = "virnat0"
         address = "10.10.10.10/24"
+
+        # MAC address must be fixed for all VMs interfaces as it's used to (find & configure) them
+        mac     = "DA:C8:20:7A:37:BF"
       },{
-        name = "external0"
+        name    = "external0"
         address = "192.168.0.210/24"
+        mac     = "DA:C8:20:7A:30:AC"
       }
     ]
   }
@@ -119,11 +123,9 @@ instances = {
     memory = 2048 # 2GB
     disk = 10000000000 # 10GB
     networks = [{
-        name = "virnat0"
+        name    = "virnat0"
         address = "10.10.10.20/24"
-
-        # (Optional) MAC address can be fixed. Useful to set simple static firewall rules
-        mac = "52:54:00:56:A9:77"
+        mac     = "DA:C8:20:7A:A9:77"
     }]
   }
 
@@ -132,8 +134,9 @@ instances = {
     memory = 2048 # 2GB
     disk = 10000000000 # 10GB
     networks = [{
-        name = "virnat0"
+        name    = "virnat0"
         address = "10.10.10.21/24"
+        mac     = "DA:C8:20:7A:A2:22"
     }]
   }
 
@@ -143,8 +146,9 @@ instances = {
     memory = 2048 # 2GB
     disk = 20000000000 # 20GB
     networks = [{
-        name = "virnat0"
+        name    = "virnat0"
         address = "10.10.10.30/24"
+        mac     = "DA:C8:20:7A:A4:36"
     }]
   }
 }
