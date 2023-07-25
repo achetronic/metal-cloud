@@ -16,8 +16,8 @@ terraform {
 provider "libvirt" {
   # Use password when mode is set to 'password'. Use SSH key in other cases
   uri = var.globals.ssh_connection.mode == "password" ? (
-   "qemu+ssh://${var.globals.ssh_connection.username}:${var.globals.ssh_connection.password}@${var.globals.ssh_connection.host}/system?sshauth=ssh-password&no_verify=1"
-  ) : (
-   "qemu+ssh://${var.globals.ssh_connection.username}@${var.globals.ssh_connection.host}/system?keyfile=${var.globals.ssh_connection.private_key_path}&sshauth=privkey&no_verify=1"
+    "qemu+ssh://${var.globals.ssh_connection.username}:${var.globals.ssh_connection.password}@${var.globals.ssh_connection.host}/system?sshauth=ssh-password&no_verify=1"
+    ) : (
+    "qemu+ssh://${var.globals.ssh_connection.username}@${var.globals.ssh_connection.host}/system?keyfile=${var.globals.ssh_connection.key_path}&sshauth=privkey,agent&no_verify=1"
   )
 }

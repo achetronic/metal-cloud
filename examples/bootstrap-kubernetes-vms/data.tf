@@ -5,12 +5,12 @@ locals {
 
     # Configuration for SSH connection parameters
     ssh_connection = {
-      host             = var.SSH_HOST
-      username         = var.SSH_USERNAME
+      host     = var.SSH_HOST
+      username = var.SSH_USERNAME
 
-      password         = var.SSH_PASSWORD
-      private_key_path = var.SSH_PRIVATE_KEY_PATH
-      mode             = "password"
+      password = var.SSH_PASSWORD
+      key_path = var.SSH_KEY_PATH
+      mode     = "password"
     }
 
     # Parameters related to those files used/thrown at some point on VM creation
@@ -64,7 +64,7 @@ locals {
       # Using 'OrangePi 5' as hypervisor. This SBC is quite new, so there is no specific machine type for it
       # Use generic 'virt' to apply all needed patches for this kind of environments
       # Ref: https://www.qemu.org/docs/master/system/target-arm.html
-      arch = "aarch64"
+      arch    = "aarch64"
       machine = "virt"
 
       vcpu   = 2
@@ -84,7 +84,7 @@ locals {
       # Using 'OrangePi 5' as hypervisor. This SBC is quite new, so there is no specific machine type for it
       # Use generic 'virt' to apply all needed patches for this kind of environments
       # Ref: https://www.qemu.org/docs/master/system/target-arm.html
-      arch = "aarch64"
+      arch    = "aarch64"
       machine = "virt"
 
       vcpu   = 2

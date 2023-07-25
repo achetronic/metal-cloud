@@ -15,9 +15,9 @@ variable "globals" {
       # Password to be authenticated in the host
       password = optional(string)
 
-      # Path to the private key to be authenticated in the host
+      # Path to the ssh key (public or private) to be authenticated in the host
       # This key should already exists on the host machine
-      private_key_path = optional(string)
+      key_path = optional(string)
 
       # Which auth method use on SSH connection: password, key
       mode = string
