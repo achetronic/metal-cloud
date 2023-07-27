@@ -15,9 +15,10 @@ resource "libvirt_network" "nat" {
   bridge = each.key
   domain = join(".", [each.key, "local"])
 
+  autostart = true
   addresses = each.value.dhcp_address_blocks
 
-  dhcp { enabled = true }
+  dhcp { enabled = false }
 
   dns {
     enabled    = true

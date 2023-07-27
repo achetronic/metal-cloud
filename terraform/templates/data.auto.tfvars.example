@@ -113,6 +113,9 @@ instances = {
         name    = "external0"
         address = "192.168.0.210/24"
         mac     = "DA:C8:20:7A:30:AC"
+
+        # If we have more than one network, ones must be marked as default
+        default = true
       }
     ]
   }

@@ -53,6 +53,19 @@ locals {
       # Address to the gateway
       gateway_address = "192.168.2.1"
     }
+
+    # Configuration for a NAT
+    virnat0 = {
+      # Type of network
+      # Possible values: nat, macvtap
+      mode = "nat"
+
+      # Assignable IP address blocks in CIDR notation
+      dhcp_address_blocks = ["10.10.10.0/24"]
+
+      # Address to the gateway
+      gateway_address = "10.10.10.1"
+    }
   }
 
   # Instance basic definition.
@@ -75,7 +88,14 @@ locals {
           name    = "external0"
           address = "192.168.2.41/24"
           mac     = "DA:C8:20:7A:37:BF"
-        }
+          # If we have more than one network, ones must be marked as default
+          default = true
+        },
+        {
+          name    = "virnat0"
+          address = "10.10.10.10/24"
+          mac     = "F9:1C:A6:02:77:83"
+        },
       ]
     }
 
@@ -92,8 +112,8 @@ locals {
       disk   = 20000000000
       networks = [
         {
-          name    = "external0"
-          address = "192.168.2.42/24"
+          name    = "virnat0"
+          address = "10.10.10.20/24"
           mac     = "BE:FE:37:D8:6B:AB"
         }
       ]
