@@ -119,6 +119,6 @@ variable "instances" {
       )
     ])
 
-    error_message = "In instances with more than one network, ONE and ONLY ONE network must be marked as \"default\"."
+    error_message = "In instances with more than one network, only one must be marked as \"default\"."
   }
 }
