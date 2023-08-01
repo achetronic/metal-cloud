@@ -85,6 +85,7 @@ variable "instances" {
       name    = string
       address = string
       mac     = string
+      default = optional(bool, false)
     }))
   }))
   description = "Instances definition block"
@@ -107,5 +108,17 @@ variable "instances" {
     ]))
 
     error_message = "Allowed values for instance.networks.mac are like: AA:BB:CC:DD:EE:FF."
+  }
+
+  validation {
+    condition = alltrue([
+      for instance_name, instance_definition in var.instances :
+      (
+        length(instance_definition.networks) <= 1 ||
+        length([for network in instance_definition.networks : network if network.default]) == 1
+      )
+    ])
+
+    error_message = "In instances with more than one network, only one must be marked as \"default\"."
   }
 }
